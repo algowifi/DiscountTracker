@@ -17,7 +17,7 @@ export function SearchFilter({
   onCategoryChange 
 }: SearchFilterProps) {
   return (
-    <div className="flex gap-4 mb-6">
+    <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="relative flex-1">
         <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
         <Input
@@ -28,7 +28,7 @@ export function SearchFilter({
         />
       </div>
       <Select value={category} onValueChange={onCategoryChange}>
-        <SelectTrigger className="w-48">
+        <SelectTrigger className="w-full sm:w-48">
           <SelectValue placeholder="Category" />
         </SelectTrigger>
         <SelectContent>

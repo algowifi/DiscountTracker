@@ -9,7 +9,7 @@ import { queryClient } from "@/lib/queryClient";
 
 export default function Home() {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("all");
   const { toast } = useToast();
 
   const { data: activities = [], isLoading } = useQuery<Activity[]>({
@@ -54,10 +54,10 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="animate-pulse">
           <div className="h-10 bg-muted rounded w-1/3 mb-6" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="h-80 bg-muted rounded" />
             ))}
@@ -68,31 +68,33 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Activity Discounts
-          </h1>
-          {totalSavings > 0 && (
-            <p className="text-lg text-muted-foreground mt-2">
-              Total potential savings: ${totalSavings.toFixed(2)}
-            </p>
-          )}
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="flex flex-col gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Activity Discounts
+            </h1>
+            {totalSavings > 0 && (
+              <p className="text-base sm:text-lg text-muted-foreground mt-2">
+                Total potential savings: ${totalSavings.toFixed(2)}
+              </p>
+            )}
+          </div>
         </div>
+
+        <SearchFilter
+          search={search}
+          category={category}
+          onSearchChange={setSearch}
+          onCategoryChange={setCategory}
+        />
+
+        <ActivityGrid
+          activities={filteredActivities}
+          onToggle={(id) => toggleMutation.mutate(id)}
+        />
       </div>
-
-      <SearchFilter
-        search={search}
-        category={category}
-        onSearchChange={setSearch}
-        onCategoryChange={setCategory}
-      />
-
-      <ActivityGrid
-        activities={filteredActivities}
-        onToggle={(id) => toggleMutation.mutate(id)}
-      />
     </div>
   );
 }

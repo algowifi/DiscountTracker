@@ -14,8 +14,8 @@ export function ActivityCard({ activity, onToggle }: ActivityCardProps) {
   const savings = activity.originalPrice - discountedPrice;
 
   return (
-    <Card className="overflow-hidden">
-      <div className="relative h-48">
+    <Card className="overflow-hidden flex flex-col">
+      <div className="relative h-40 sm:h-48">
         <img 
           src={activity.imageUrl} 
           alt={activity.name}
@@ -28,11 +28,11 @@ export function ActivityCard({ activity, onToggle }: ActivityCardProps) {
           {activity.discountPercentage}% OFF
         </Badge>
       </div>
-      <CardContent className="pt-4">
+      <CardContent className="flex-1 pt-4">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-lg">{activity.name}</h3>
-            <p className="text-sm text-muted-foreground">{activity.description}</p>
+            <h3 className="font-semibold text-base sm:text-lg line-clamp-2">{activity.name}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">{activity.description}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 mt-2">
@@ -40,7 +40,7 @@ export function ActivityCard({ activity, onToggle }: ActivityCardProps) {
           <span className="text-sm text-muted-foreground">{activity.category}</span>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between items-center">
+      <CardFooter className="flex justify-between items-center pt-4 border-t">
         <div className="flex flex-col">
           <span className="text-sm text-muted-foreground line-through">
             ${activity.originalPrice}
