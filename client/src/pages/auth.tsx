@@ -22,11 +22,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [, setLocation] = useLocation();
   const [isLogin, setIsLogin] = useState(true); // Default a true per mostrare il login
+  const { toast } = useToast();
 
   const form = useForm({
     resolver: zodResolver(insertUserSchema),
@@ -46,10 +48,29 @@ export default function AuthPage() {
       try {
         await loginMutation.mutateAsync(data);
       } catch (error: any) {
-        if (error.message.includes("401")) {
-          // Se l'utente non esiste, passa alla registrazione
-          setIsLogin(false);
-          form.reset();
+        const errorMessage = error.message || "";
+        if (errorMessage.includes("401")) {
+          const response = await fetch("/api/user-exists", { 
+            method: "POST", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: data.username })
+          });
+
+          if (response.status === 404) {
+            // Utente non esiste, passa alla registrazione
+            setIsLogin(false);
+            form.reset();
+            toast({
+              description: "Utente non trovato. Procedi con la registrazione.",
+            });
+          } else {
+            // Password errata
+            toast({
+              title: "Errore di accesso",
+              description: "Password non corretta. Riprova.",
+              variant: "destructive",
+            });
+          }
         }
       }
     } else {

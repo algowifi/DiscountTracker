@@ -7,6 +7,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
 
+  // Route per verificare l'esistenza di un utente
+  app.post("/api/user-exists", async (req, res) => {
+    const { username } = req.body;
+    const user = await storage.getUserByUsername(username);
+    if (user) {
+      res.status(200).json({ exists: true });
+    } else {
+      res.status(404).json({ exists: false });
+    }
+  });
+
   // Protected routes - require authentication
   app.use("/api/activities", (req, res, next) => {
     if (!req.isAuthenticated()) {
