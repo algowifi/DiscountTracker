@@ -6,11 +6,15 @@ import { SearchFilter } from "@/components/search-filter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const { toast } = useToast();
+  const { user, logoutMutation } = useAuth();
 
   const { data: activities = [], isLoading } = useQuery<Activity[]>({
     queryKey: ["/api/activities"],
@@ -69,6 +73,34 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <h2 className="text-sm sm:text-base font-medium">
+                Benvenuto, <span className="text-primary">{user?.username}</span>
+              </h2>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {logoutMutation.isPending ? (
+                "Disconnessione..."
+              ) : (
+                <>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="flex flex-col gap-4 mb-6">
           <div>
