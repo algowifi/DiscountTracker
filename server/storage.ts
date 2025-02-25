@@ -1,18 +1,58 @@
-import { type Activity, type InsertActivity } from "@shared/schema";
+import { type Activity, type User, type InsertUser } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
+  // User methods
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+
+  // Activity methods
   getActivities(): Promise<Activity[]>;
   getActivityById(id: number): Promise<Activity | undefined>;
   toggleActivityDiscount(id: number): Promise<Activity>;
+
+  // Session store
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
   private activities: Map<number, Activity>;
+  private users: Map<number, User>;
+  private currentUserId: number;
+  sessionStore: session.Store;
 
   constructor() {
     this.activities = new Map(mockActivities.map(a => [a.id, a]));
+    this.users = new Map();
+    this.currentUserId = 1;
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000, // prune expired entries every 24h
+    });
   }
 
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username,
+    );
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.currentUserId++;
+    const user = { ...insertUser, id };
+    this.users.set(id, user);
+    return user;
+  }
+
+  // Activity methods
   async getActivities(): Promise<Activity[]> {
     return Array.from(this.activities.values());
   }
@@ -24,7 +64,7 @@ export class MemStorage implements IStorage {
   async toggleActivityDiscount(id: number): Promise<Activity> {
     const activity = this.activities.get(id);
     if (!activity) throw new Error("Activity not found");
-    
+
     const updated = { ...activity, isActive: !activity.isActive };
     this.activities.set(id, updated);
     return updated;
