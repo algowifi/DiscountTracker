@@ -20,14 +20,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [, setLocation] = useLocation();
-  const [isLogin, setIsLogin] = useState(true);
-  
+  const [isLogin, setIsLogin] = useState(false); // Cambiato a false di default
+
   const form = useForm({
     resolver: zodResolver(insertUserSchema),
     defaultValues: {
@@ -35,6 +35,13 @@ export default function AuthPage() {
       password: "",
     },
   });
+
+  // Se l'errore è "utente non trovato", passa automaticamente alla registrazione
+  useEffect(() => {
+    if (loginMutation.error?.message.includes("401")) {
+      setIsLogin(false);
+    }
+  }, [loginMutation.error]);
 
   if (user) {
     setLocation("/");
