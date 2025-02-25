@@ -20,13 +20,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [, setLocation] = useLocation();
-  const [isLogin, setIsLogin] = useState(false); // Cambiato a false di default
+  const [isLogin, setIsLogin] = useState(true); // Default a true per mostrare il login
 
   const form = useForm({
     resolver: zodResolver(insertUserSchema),
@@ -36,13 +36,6 @@ export default function AuthPage() {
     },
   });
 
-  // Se l'errore è "utente non trovato", passa automaticamente alla registrazione
-  useEffect(() => {
-    if (loginMutation.error?.message.includes("401")) {
-      setIsLogin(false);
-    }
-  }, [loginMutation.error]);
-
   if (user) {
     setLocation("/");
     return null;
@@ -50,7 +43,15 @@ export default function AuthPage() {
 
   const onSubmit = async (data: any) => {
     if (isLogin) {
-      await loginMutation.mutateAsync(data);
+      try {
+        await loginMutation.mutateAsync(data);
+      } catch (error: any) {
+        if (error.message.includes("401")) {
+          // Se l'utente non esiste, passa alla registrazione
+          setIsLogin(false);
+          form.reset();
+        }
+      }
     } else {
       await registerMutation.mutateAsync(data);
     }

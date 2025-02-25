@@ -44,11 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Non mostriamo toast per errore 401 perché verrà gestito dal componente Auth
+      if (!error.message.includes("401")) {
+        toast({
+          title: "Errore di accesso",
+          description: "Password non corretta. Riprova.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -60,13 +63,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Registration successful",
-        description: `Welcome, ${user.username}!`,
+        title: "Registrazione completata",
+        description: `Benvenuto, ${user.username}!`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Registration failed",
+        title: "Errore di registrazione",
         description: error.message,
         variant: "destructive",
       });
@@ -80,13 +83,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
       toast({
-        title: "Logged out",
-        description: "Come back soon!",
+        title: "Logout effettuato",
+        description: "Torna presto!",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Logout failed",
+        title: "Errore durante il logout",
         description: error.message,
         variant: "destructive",
       });
